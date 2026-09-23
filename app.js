@@ -1,4 +1,4 @@
-const RELEASE_API = 'https://api.github.com/repos/JR-Academy-AI/jobhunter-releases/releases/latest';
+const RELEASE_API = 'https://api.github.com/repos/JobHunter-AI/jobhunter-releases/releases/latest';
 
 const $ = (id) => document.getElementById(id);
 const formatBytes = (bytes) => {

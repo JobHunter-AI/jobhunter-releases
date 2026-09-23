@@ -4,7 +4,7 @@
 
 ## 下载
 
-- [打开求职匠下载页](https://jr-academy-ai.github.io/jobhunter-releases/)
+- [打开求职匠下载页](https://jobhunter-ai.github.io/jobhunter-releases/)
 - [查看全部 Releases](../../releases)
 
 下载页读取 GitHub 正式 Latest 版本：有 `.dmg` 才开放 macOS 按钮，有 `.exe` 才开放 Windows 按钮。历史版本和内测版请到 Releases 查看。
@@ -33,5 +33,5 @@ App 每次启动会静默查一次更新，装好后提示重启，**不会自�
 ## 已知限制
 
 - 未签名未公证（首次打开要右键 → 打开）
-- 当前可用平台与架构以[下载页](https://jr-academy-ai.github.io/jobhunter-releases/)显示为准
+- 当前可用平台与架构以[下载页](https://jobhunter-ai.github.io/jobhunter-releases/)显示为准
 - 需要本机装 [Claude Code](https://claude.com/claude-code) 才能生成简历
