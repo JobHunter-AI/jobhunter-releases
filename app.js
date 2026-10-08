@@ -46,20 +46,30 @@ async function loadRelease() {
     if (!release || release.draft || release.prerelease) throw new Error('No stable Latest release');
     const assets = Array.isArray(release.assets) ? release.assets : [];
     const mac = findAsset(assets, 'mac');
-    const windows = findAsset(assets, 'windows');
+    let windows = findAsset(assets, 'windows');
+    let windowsVersion = release.tag_name;
+    if (!windows) {
+      const previous = await fetch(RELEASE_API.replace('/latest', '/tags/v0.6.0'), { headers: { Accept: 'application/vnd.github+json' } });
+      if (previous.ok) {
+        const stable = await previous.json();
+        if (!stable.draft && !stable.prerelease) {
+          windows = findAsset(stable.assets || [], 'windows');
+          windowsVersion = stable.tag_name;
+        }
+      }
+    }
     enableDownload('mac', mac, release.tag_name, release.prerelease);
-    enableDownload('windows', windows, release.tag_name, release.prerelease);
+    enableDownload('windows', windows, windowsVersion, false);
 
     const preferredAsset = recommended === 'windows' ? windows : mac;
-    const fallbackAsset = mac || windows;
-    const selected = preferredAsset || fallbackAsset;
+    const selected = preferredAsset;
     const button = $('recommended-download');
     button.classList.remove('is-loading');
     if (selected) {
       button.href = selected.browser_download_url;
       const platformName = recommended === 'windows' && windows ? 'Windows' : 'macOS';
       button.querySelector('strong').textContent = `下载 ${platformName} ${release.prerelease ? '内测版' : '版'}`;
-      button.querySelector('small').textContent = `${release.tag_name} · ${formatBytes(selected.size)}`;
+      button.querySelector('small').textContent = `${recommended === 'windows' ? windowsVersion : release.tag_name} · ${formatBytes(selected.size)}`;
       $('release-status').textContent = release.prerelease
         ? `当前为 ${release.tag_name} 未签名内测版，首次打开可能出现系统安全提示。`
         : `最新正式版本 ${release.tag_name}，由 GitHub production release 提供。`;

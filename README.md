@@ -1,37 +1,20 @@
-# 求职匠 · 发布
+# 求职匠 · 正式发布
 
-**AI 私人求职顾问**（桌面 App，macOS / Windows）。这个仓库只放安装包和自动更新清单 —— 源码不在这里。
+本仓库仅提供公开安装包、下载页和签名自动更新清单，不包含 App 源码。
 
-## 下载
+- [下载页](https://jobhunter-ai.github.io/jobhunter-releases/)
+- [正式与历史版本](https://github.com/JobHunter-AI/jobhunter-releases/releases)
 
-- [打开求职匠下载页](https://jobhunter-ai.github.io/jobhunter-releases/)
-- [查看全部 Releases](../../releases)
+## macOS 0.6.7
 
-下载页读取 GitHub 正式 Latest 版本：有 `.dmg` 才开放 macOS 按钮，有 `.exe` 才开放 Windows 按钮。历史版本和内测版请到 Releases 查看。
+Universal 安装包支持 Apple Silicon 与 Intel，已完成 Developer ID 签名、Apple 公证及 Gatekeeper 检查。包含匠人官方模型、统一会员额度、AI 对话创建简历、内置 Codex 和 AI 稳定性修复。
 
-## 装完第一次打开
+App 在启动、恢复登录和开始任务之前检查签名更新，安装成功后自动重启。设置页也可手动检查。更新保留本地资料；免费基础交流额度用完即停止，不自动切换付费档。
 
-macOS 会提示「无法验证开发者」——因为这个版本**还没做代码签名和公证**。
-右键点 App → 打开 → 再点一次「打开」即可。本版沿用此前的安装包发行方式。
+## Windows
 
-Windows 可能显示 Microsoft Defender SmartScreen。确认下载来源是本仓库后，点「更多信息」→「仍要运行」。
+本次未发布 Windows 0.6.7；下载页继续提供既有 0.6.0，明确显示实际版本。Windows 新版签名与实机验收仍待完成，不能将旧包标成新版。
 
-## 自动更新
+## AI 与资料
 
-App 每次启动会静默查一次更新，装好后提示重启，**不会自动重启**打断你正在跑的任务。
-更新包必须通过签名校验才装得上——伪造的包装不进来。
-
-## 你的数据在哪
-
-全部在你自己电脑的 `~/求职匠/` 下（目录权限 0700，同机其他账号读不到），
-**我们的服务器一个字节也收不到**。
-
-一件要说清楚的事：生成简历时，内容会送进**你自己装的 AI 引擎**（Claude Code），
-也就是会到 Anthropic 那边——走你自己的账号和订阅，不经过我们。
-介意的话，别把不想让任何模型看到的东西写进资料库。
-
-## 已知限制
-
-- 未签名未公证（首次打开要右键 → 打开）
-- 当前可用平台与架构以[下载页](https://jobhunter-ai.github.io/jobhunter-releases/)显示为准
-- 需要本机装 [Claude Code](https://claude.com/claude-code) 才能生成简历
+本地资料保存在用户电脑。使用匠人官方模型时，请求所需内容会经匠人服务发送给配置的模型供应商；使用个人 Claude/Codex 时走对应账号。免费档只提供有限基础交流，完整简历任务需要相应权益。不要把账号凭据或不希望发送给模型的信息放进对话。
