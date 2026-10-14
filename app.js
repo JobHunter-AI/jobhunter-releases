@@ -32,8 +32,8 @@ function enableDownload(platform, asset, version, isBeta) {
   link.href = asset.browser_download_url;
   link.removeAttribute('aria-disabled');
   link.classList.remove('is-disabled');
-  link.textContent = platform === 'mac' ? `下载 macOS ${isBeta ? '内测版' : '版'}` : `下载 Windows ${isBeta ? '内测版' : '版'}`;
-  meta.textContent = `${version} · ${formatBytes(asset.size)} · ${isBeta ? 'unsigned beta' : 'production release'}`;
+  link.textContent = platform === 'mac' ? `下载 macOS ${isBeta ? '内测版' : '版'}` : `下载 Windows ${isBeta ? '内测版' : '旧版'}`;
+  meta.textContent = `${version} · ${formatBytes(asset.size)} · ${platform === 'windows' ? '旧版，功能与最新截图不同' : (isBeta ? '未签名内测版' : '已签名与公证的正式版')}`;
 }
 
 async function loadRelease() {
@@ -68,11 +68,11 @@ async function loadRelease() {
     if (selected) {
       button.href = selected.browser_download_url;
       const platformName = recommended === 'windows' && windows ? 'Windows' : 'macOS';
-      button.querySelector('strong').textContent = `下载 ${platformName} ${release.prerelease ? '内测版' : '版'}`;
+      button.querySelector('strong').textContent = `下载 ${platformName} ${recommended === 'windows' && windowsVersion !== release.tag_name ? '旧版' : (release.prerelease ? '内测版' : '版')}`;
       button.querySelector('small').textContent = `${recommended === 'windows' ? windowsVersion : release.tag_name} · ${formatBytes(selected.size)}`;
       $('release-status').textContent = release.prerelease
         ? `当前为 ${release.tag_name} 未签名内测版，首次打开可能出现系统安全提示。`
-        : `最新正式版本 ${release.tag_name}，由 GitHub production release 提供。`;
+        : `macOS 最新正式版 ${release.tag_name} · 已签名与 Apple 公证。`;
     } else {
       button.href = release.html_url;
       button.querySelector('strong').textContent = '查看最新发布状态';
@@ -89,3 +89,45 @@ async function loadRelease() {
 }
 
 loadRelease();
+
+// 截图导航：真实图片保留原始内容，键盘可切换与放大。
+const tabs = [...document.querySelectorAll('[data-screen]')];
+function selectScreen(tab, focus = false) {
+  tabs.forEach(item => {
+    const selected = item === tab;
+    item.setAttribute('aria-selected', String(selected));
+    item.tabIndex = selected ? 0 : -1;
+    document.getElementById(`screen-${item.dataset.screen}`).hidden = !selected;
+  });
+  if (focus) tab.focus();
+}
+tabs.forEach((tab, index) => {
+  tab.addEventListener('click', () => selectScreen(tab));
+  tab.addEventListener('keydown', event => {
+    let next;
+    if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
+    if (event.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
+    if (event.key === 'Home') next = 0;
+    if (event.key === 'End') next = tabs.length - 1;
+    if (next !== undefined) { event.preventDefault(); selectScreen(tabs[next], true); }
+  });
+});
+const dialog = document.getElementById('screenshot-dialog');
+let lastImageButton;
+document.querySelectorAll('[data-image]').forEach(button => button.addEventListener('click', () => {
+  lastImageButton = button;
+  const image = document.getElementById('expanded-screenshot');
+  image.src = button.dataset.image;
+  image.alt = button.dataset.caption;
+  document.getElementById('screenshot-caption').textContent = button.dataset.caption;
+  dialog.showModal();
+}));
+document.getElementById('close-screenshot').addEventListener('click', () => dialog.close());
+dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+dialog.addEventListener('close', () => lastImageButton?.focus());
+if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); }
+  }), { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(section => observer.observe(section));
+}
