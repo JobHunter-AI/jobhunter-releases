@@ -13,3 +13,4 @@
 ## 2026-10-14 · 官方下载域名
 
 - 接入 jobhunter.jracademy.ai：Route 53 CNAME 指向 GitHub Pages，下载页声明官方 canonical，部署同步 CNAME。发行安装包与签名更新清单沿用同一官方二进制仓。
+- 完成 GitHub Pages 证书签发、强制 HTTPS 和浏览器验收：新域名 HTTPS 返回 200，旧 Pages 地址 301 跳转，Mac 下载指向已核验的 0.6.32 正式安装包。
