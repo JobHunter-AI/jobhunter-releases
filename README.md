@@ -2,7 +2,8 @@
 
 本仓库仅提供公开安装包、下载页和签名自动更新清单，不包含 App 源码。
 
-- [下载页](https://jobhunter-ai.github.io/jobhunter-releases/)
+- [官方下载页](https://jobhunter.jracademy.ai/)
+- 原 GitHub Pages 下载入口保留跳转至上述官方域名。
 - [正式与历史版本](https://github.com/JobHunter-AI/jobhunter-releases/releases)
 
 ## macOS 0.6.32

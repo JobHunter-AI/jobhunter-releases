@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths:
+      - CNAME
       - index.html
       - styles.css
       - app.js
