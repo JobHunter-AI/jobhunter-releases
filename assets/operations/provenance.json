@@ -1,0 +1,160 @@
+{
+  "captured": "2026-10-15",
+  "app": "macOS 0.6.32 isolated anonymous Demo",
+  "format": "Sequenced native UI captures, not continuous video or live inference",
+  "aiRequests": 0,
+  "steps": {
+    "library": [
+      {
+        "src": "./assets/operations/library-01.webp",
+        "caption": "打开「我的资料库」，从已有材料开始。"
+      },
+      {
+        "src": "./assets/operations/library-02.webp",
+        "caption": "点击「经历与项目」，查看工作经历与项目。"
+      },
+      {
+        "src": "./assets/operations/library-03.webp",
+        "caption": "点击「项目」过滤列表，工作经历暂时收起。"
+      }
+    ],
+    "experience": [
+      {
+        "src": "./assets/operations/experience-01.webp",
+        "caption": "打开这段经历，检查职位、地点与责任成果。"
+      },
+      {
+        "src": "./assets/operations/experience-02.webp",
+        "caption": "在「地点」中直接修改资料，保存按钮会变为可用。"
+      },
+      {
+        "src": "./assets/operations/experience-03.webp",
+        "caption": "点击「保存」，回到经历列表，改动已写入匿名资料库。"
+      }
+    ],
+    "analysis": [
+      {
+        "src": "./assets/operations/analysis-01.webp",
+        "caption": "选择「针对岗位定制」，先填公司与岗位。"
+      },
+      {
+        "src": "./assets/operations/analysis-02.webp",
+        "caption": "填好公司和岗位，切换到「手动粘贴 JD」。"
+      },
+      {
+        "src": "./assets/operations/analysis-03.webp",
+        "caption": "粘贴完整 JD 后，岗位分析入口变为可用；本演示不提交 AI 请求。"
+      },
+      {
+        "src": "./assets/operations/analysis-04.webp",
+        "caption": "点击已保存岗位的「看清对方要什么」，查看预存 Demo 分析；没有新运行 AI。"
+      }
+    ],
+    "workbench": [
+      {
+        "src": "./assets/operations/workbench-01.webp",
+        "caption": "打开已保存岗位，右侧显示六步执行流程。"
+      },
+      {
+        "src": "./assets/operations/workbench-02.webp",
+        "caption": "切到「看清对方要什么」，核对要求、证据和差距。"
+      },
+      {
+        "src": "./assets/operations/workbench-03.webp",
+        "caption": "切回「打磨与导出」，继续处理已保存的岗位简历。"
+      }
+    ],
+    "edit": [
+      {
+        "src": "./assets/operations/edit-01.webp",
+        "caption": "点击右侧「AI 改简历」，打开当前岗位的修改助手。"
+      },
+      {
+        "src": "./assets/operations/edit-02.webp",
+        "caption": "在输入框写清要改哪里、哪些事实要保留。"
+      },
+      {
+        "src": "./assets/operations/edit-03.webp",
+        "caption": "检查修改要求再发送。此处只演示输入，未发送或生成新内容。"
+      }
+    ],
+    "templates": [
+      {
+        "src": "./assets/operations/templates-01.webp",
+        "caption": "打开模板库，看到当前简历在不同版式里的真实预览。"
+      },
+      {
+        "src": "./assets/operations/templates-02.webp",
+        "caption": "选择「学术紧凑」后，原来的正文重新排版；内容没有重新生成。"
+      },
+      {
+        "src": "./assets/operations/templates-03.webp",
+        "caption": "点「原尺寸」检查排版，再回到预览使用导出入口。"
+      }
+    ],
+    "letter": [
+      {
+        "src": "./assets/operations/letter-01.webp",
+        "caption": "切到「岗位求职信」，先选择对应的岗位简历。"
+      },
+      {
+        "src": "./assets/operations/letter-02.webp",
+        "caption": "展开岗位下拉列表，选这封信对应的岗位。"
+      },
+      {
+        "src": "./assets/operations/letter-03.webp",
+        "caption": "也可以从简历库的「生成或修改求职信」直达对应岗位；这里读取的是预存示例。"
+      },
+      {
+        "src": "./assets/operations/letter-04.webp",
+        "caption": "打开「AI 改求职信」写修改要求；未发送，修改后仍需核对。"
+      }
+    ],
+    "versions": [
+      {
+        "src": "./assets/operations/versions-01.webp",
+        "caption": "打开简历库，按岗位找到已保存的版本"
+      },
+      {
+        "src": "./assets/operations/versions-02.webp",
+        "caption": "打开 Atlas 的岗位版本，查看这份简历和事实出处。"
+      },
+      {
+        "src": "./assets/operations/versions-03.webp",
+        "caption": "返回简历库，再选另一份岗位版本。"
+      },
+      {
+        "src": "./assets/operations/versions-04.webp",
+        "caption": "Northstar 版本独立保存，不会覆盖其他岗位的材料。"
+      }
+    ],
+    "pipeline": [
+      {
+        "src": "./assets/operations/pipeline-01.webp",
+        "caption": "打开求职进程，先看今天需要处理的岗位"
+      },
+      {
+        "src": "./assets/operations/pipeline-02.webp",
+        "caption": "点击「按阶段查看」，投递和面试分列呈现"
+      }
+    ],
+    "interview": [
+      {
+        "src": "./assets/operations/interview-01.webp",
+        "caption": "打开面试岗位，查看轮次、时间与准备材料"
+      },
+      {
+        "src": "./assets/operations/interview-02.webp",
+        "caption": "点击这一轮的「改」，打开面试安排表单"
+      },
+      {
+        "src": "./assets/operations/interview-03.webp",
+        "caption": "把面试时长从 45 分钟改为 60 分钟"
+      },
+      {
+        "src": "./assets/operations/interview-04.webp",
+        "caption": "点击「保存这轮」，岗位记录更新为 60 分钟"
+      }
+    ]
+  }
+}

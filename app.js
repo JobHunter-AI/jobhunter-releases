@@ -120,3 +120,94 @@ if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: re
   }), { threshold: 0.12 });
   document.querySelectorAll('.reveal').forEach(section => observer.observe(section));
 }
+
+// Real native Demo actions; playback never submits a model request.
+const OPERATION_STEPS = {"library": [{"src": "./assets/operations/library-01.webp", "caption": "打开「我的资料库」，从已有材料开始。"}, {"src": "./assets/operations/library-02.webp", "caption": "点击「经历与项目」，查看工作经历与项目。"}, {"src": "./assets/operations/library-03.webp", "caption": "点击「项目」过滤列表，工作经历暂时收起。"}], "experience": [{"src": "./assets/operations/experience-01.webp", "caption": "打开这段经历，检查职位、地点与责任成果。"}, {"src": "./assets/operations/experience-02.webp", "caption": "在「地点」中直接修改资料，保存按钮会变为可用。"}, {"src": "./assets/operations/experience-03.webp", "caption": "点击「保存」，回到经历列表，改动已写入匿名资料库。"}], "analysis": [{"src": "./assets/operations/analysis-01.webp", "caption": "选择「针对岗位定制」，先填公司与岗位。"}, {"src": "./assets/operations/analysis-02.webp", "caption": "填好公司和岗位，切换到「手动粘贴 JD」。"}, {"src": "./assets/operations/analysis-03.webp", "caption": "粘贴完整 JD 后，岗位分析入口变为可用；本演示不提交 AI 请求。"}, {"src": "./assets/operations/analysis-04.webp", "caption": "点击已保存岗位的「看清对方要什么」，查看预存 Demo 分析；没有新运行 AI。"}], "workbench": [{"src": "./assets/operations/workbench-01.webp", "caption": "打开已保存岗位，右侧显示六步执行流程。"}, {"src": "./assets/operations/workbench-02.webp", "caption": "切到「看清对方要什么」，核对要求、证据和差距。"}, {"src": "./assets/operations/workbench-03.webp", "caption": "切回「打磨与导出」，继续处理已保存的岗位简历。"}], "edit": [{"src": "./assets/operations/edit-01.webp", "caption": "点击右侧「AI 改简历」，打开当前岗位的修改助手。"}, {"src": "./assets/operations/edit-02.webp", "caption": "在输入框写清要改哪里、哪些事实要保留。"}, {"src": "./assets/operations/edit-03.webp", "caption": "检查修改要求再发送。此处只演示输入，未发送或生成新内容。"}], "templates": [{"src": "./assets/operations/templates-01.webp", "caption": "打开模板库，看到当前简历在不同版式里的真实预览。"}, {"src": "./assets/operations/templates-02.webp", "caption": "选择「学术紧凑」后，原来的正文重新排版；内容没有重新生成。"}, {"src": "./assets/operations/templates-03.webp", "caption": "点「原尺寸」检查排版，再回到预览使用导出入口。"}], "letter": [{"src": "./assets/operations/letter-01.webp", "caption": "切到「岗位求职信」，先选择对应的岗位简历。"}, {"src": "./assets/operations/letter-02.webp", "caption": "展开岗位下拉列表，选这封信对应的岗位。"}, {"src": "./assets/operations/letter-03.webp", "caption": "也可以从简历库的「生成或修改求职信」直达对应岗位；这里读取的是预存示例。"}, {"src": "./assets/operations/letter-04.webp", "caption": "打开「AI 改求职信」写修改要求；未发送，修改后仍需核对。"}], "versions": [{"src": "./assets/operations/versions-01.webp", "caption": "打开简历库，按岗位找到已保存的版本"}, {"src": "./assets/operations/versions-02.webp", "caption": "打开 Atlas 的岗位版本，查看这份简历和事实出处。"}, {"src": "./assets/operations/versions-03.webp", "caption": "返回简历库，再选另一份岗位版本。"}, {"src": "./assets/operations/versions-04.webp", "caption": "Northstar 版本独立保存，不会覆盖其他岗位的材料。"}], "pipeline": [{"src": "./assets/operations/pipeline-01.webp", "caption": "打开求职进程，先看今天需要处理的岗位"}, {"src": "./assets/operations/pipeline-02.webp", "caption": "点击「按阶段查看」，投递和面试分列呈现"}], "interview": [{"src": "./assets/operations/interview-01.webp", "caption": "打开面试岗位，查看轮次、时间与准备材料"}, {"src": "./assets/operations/interview-02.webp", "caption": "点击这一轮的「改」，打开面试安排表单"}, {"src": "./assets/operations/interview-03.webp", "caption": "把面试时长从 45 分钟改为 60 分钟"}, {"src": "./assets/operations/interview-04.webp", "caption": "点击「保存这轮」，岗位记录更新为 60 分钟"}]};
+let activeOperation;
+const operationPlayers = [];
+document.querySelectorAll('[data-operation]').forEach(figure => {
+  const steps = OPERATION_STEPS[figure.dataset.operation];
+  const controls = figure.querySelector('.operation-controls');
+  const play = controls.querySelector('.operation-play');
+  const caption = controls.querySelector('.operation-caption');
+  const count = controls.querySelector('.operation-count');
+  const row = controls.querySelector('.operation-steps');
+  const imageButton = figure.querySelector('.image-open');
+  const image = imageButton.querySelector('img');
+  const title = figure.closest('section').querySelector('.feature-number').textContent;
+  let index = -1, timer, playing = false, generation = 0;
+  const buttons = steps.map((step, i) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = `${i + 1}`;
+    button.setAttribute('aria-label', `第 ${i + 1} 步：${step.caption}`);
+    button.addEventListener('click', () => { pause(); show(i); });
+    row.append(button);
+    return button;
+  });
+  function pause() {
+    playing = false;
+    clearTimeout(timer);
+    figure.classList.remove('is-playing');
+    play.textContent = index === steps.length - 1 ? '↻ 重新播放' : '▶ 播放演示';
+    play.setAttribute('aria-label', index === steps.length - 1 ? '重新播放操作演示' : '播放操作演示');
+  }
+  async function show(next) {
+    const request = ++generation;
+    play.disabled = true;
+    figure.setAttribute('aria-busy', 'true');
+    caption.textContent = '正在载入操作画面…';
+    try {
+      const frame = new Image();
+      frame.src = steps[next].src;
+      await frame.decode();
+      if (request !== generation) return;
+      index = next;
+      image.src = frame.src;
+      image.alt = `${title}：${steps[index].caption}`;
+      imageButton.dataset.image = steps[index].src;
+      imageButton.dataset.caption = image.alt;
+      figure.classList.add('has-operation');
+      caption.textContent = steps[index].caption;
+      count.textContent = `第 ${index + 1} / ${steps.length} 步`;
+      buttons.forEach((button, i) => button.setAttribute('aria-pressed', String(i === index)));
+      if (playing) timer = setTimeout(() => {
+        if (index < steps.length - 1) show(index + 1);
+        else pause();
+      }, 4200);
+      else pause();
+    } catch {
+      if (request !== generation) return;
+      pause();
+      caption.textContent = '画面暂未载入，请点播放重试；也可先查看上方截图。';
+    } finally {
+      if (request === generation) {
+        play.disabled = false;
+        figure.removeAttribute('aria-busy');
+      }
+    }
+  }
+  play.addEventListener('click', () => {
+    if (playing) { pause(); return; }
+    activeOperation?.pause();
+    activeOperation = player;
+    playing = true;
+    figure.classList.add('is-playing');
+    play.textContent = 'Ⅱ 暂停';
+    play.setAttribute('aria-label', '暂停操作演示');
+    show(index < 0 || index === steps.length - 1 ? 0 : index);
+  });
+  const player = { figure, pause };
+  operationPlayers.push(player);
+  controls.hidden = false;
+  imageButton.addEventListener('click', pause);
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) activeOperation?.pause();
+});
+if ('IntersectionObserver' in window) {
+  const visibility = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (!entry.isIntersecting) operationPlayers.find(player => player.figure === entry.target)?.pause();
+  }));
+  operationPlayers.forEach(player => visibility.observe(player.figure));
+}
