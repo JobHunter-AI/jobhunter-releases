@@ -92,15 +92,61 @@ loadRelease();
 
 // 截图导航：真实图片保留原始内容，键盘可切换与放大。
 const tabs = [...document.querySelectorAll('[data-screen]')];
-function selectScreen(tab, focus = false) {
+const playButton = $('tour-play');
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+let playing = false;
+let tourTimer;
+let currentIndex = 0;
+function stopTour() {
+  playing = false;
+  clearTimeout(tourTimer);
+  playButton.textContent = '▶ 播放导览';
+  playButton.setAttribute('aria-pressed', 'false');
+  document.querySelector('.screens-section').classList.remove('is-playing');
+}
+function writeScreen(key, replace = false) {
+  const url = new URL(location.href);
+  url.searchParams.set('screen', key);
+  history[replace ? 'replaceState' : 'pushState'](null, '', url);
+}
+function selectScreen(tab, focus = false, persist = true, automatic = false) {
+  if (!tab) return;
+  if (!automatic) stopTour();
+  currentIndex = tabs.indexOf(tab);
   tabs.forEach(item => {
     const selected = item === tab;
     item.setAttribute('aria-selected', String(selected));
     item.tabIndex = selected ? 0 : -1;
-    document.getElementById(`screen-${item.dataset.screen}`).hidden = !selected;
+    $(`screen-${item.dataset.screen}`).hidden = !selected;
   });
+  $('tour-count').textContent = `${String(currentIndex + 1).padStart(2, '0')} / ${tabs.length}`;
+  $('tour-status').textContent = tab.textContent.replace(/^\d+/, '');
+  $('tour-prev').disabled = currentIndex === 0;
+  $('tour-next').disabled = currentIndex === tabs.length - 1;
+  $('tour-progress-fill').style.width = `${(currentIndex + 1) / tabs.length * 100}%`;
+  if (persist) writeScreen(tab.dataset.screen, automatic);
   if (focus) tab.focus();
 }
+function queueNext() {
+  clearTimeout(tourTimer);
+  tourTimer = setTimeout(() => {
+    if (!playing) return;
+    if (currentIndex === tabs.length - 1) { stopTour(); return; }
+    selectScreen(tabs[currentIndex + 1], false, true, true);
+    queueNext();
+  }, 6000);
+}
+playButton.addEventListener('click', () => {
+  if (playing) { stopTour(); return; }
+  if (currentIndex === tabs.length - 1) selectScreen(tabs[0]);
+  playing = true;
+  playButton.textContent = 'Ⅱ 暂停导览';
+  playButton.setAttribute('aria-pressed', 'true');
+  document.querySelector('.screens-section').classList.add('is-playing');
+  queueNext();
+});
+$('tour-prev').addEventListener('click', () => selectScreen(tabs[currentIndex - 1]));
+$('tour-next').addEventListener('click', () => selectScreen(tabs[currentIndex + 1]));
 tabs.forEach((tab, index) => {
   tab.addEventListener('click', () => selectScreen(tab));
   tab.addEventListener('keydown', event => {
@@ -112,9 +158,24 @@ tabs.forEach((tab, index) => {
     if (next !== undefined) { event.preventDefault(); selectScreen(tabs[next], true); }
   });
 });
+function restoreScreen() {
+  const key = new URL(location.href).searchParams.get('screen');
+  selectScreen(tabs.find(tab => tab.dataset.screen === key) || tabs[0], false, false);
+}
+restoreScreen();
+window.addEventListener('popstate', restoreScreen);
+document.addEventListener('visibilitychange', () => { if (document.hidden) stopTour(); });
+reducedMotion.addEventListener('change', stopTour);
+if ('IntersectionObserver' in window) {
+  const tourVisibility = new IntersectionObserver(entries => {
+    if (!entries[0].isIntersecting) stopTour();
+  });
+  tourVisibility.observe($('screens'));
+}
 const dialog = document.getElementById('screenshot-dialog');
 let lastImageButton;
 document.querySelectorAll('[data-image]').forEach(button => button.addEventListener('click', () => {
+  stopTour();
   lastImageButton = button;
   const image = document.getElementById('expanded-screenshot');
   image.src = button.dataset.image;

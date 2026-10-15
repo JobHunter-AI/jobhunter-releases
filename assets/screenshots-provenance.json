@@ -1,0 +1,23 @@
+{
+  "capturedAt": "2026-10-15",
+  "appVersion": "0.6.32",
+  "source": "Existing isolated native product Demo window; no AI requests made",
+  "identity": "Chloe Chen, built-in fictional product-demo fixtures",
+  "originalAssets": [
+    "workbench.png",
+    "analysis.png",
+    "letter.png",
+    "pipeline.png"
+  ],
+  "newAssets": [
+    "profile-library.png",
+    "experience-library.png",
+    "experience-edit.png",
+    "resume-versions.png",
+    "resume-preview.png",
+    "template-gallery.png",
+    "pipeline-overview.png",
+    "interview-tracking.png"
+  ],
+  "presentation": "Unmodified native screenshots; HTML hotspot overlays and timed navigation are editorial guidance, not a recording or live AI execution."
+}
