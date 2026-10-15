@@ -16,3 +16,5 @@
 .tour-mobile-break{display:none}@media(max-width:540px){.tour-mobile-break{display:block}.showcase-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.showcase-tabs button{flex-direction:row;align-items:center;gap:7px;padding:10px;font-size:12px;min-height:44px}}
 
 .tour-extra{margin-top:15px;padding:10px 14px;border:1px solid var(--border);background:var(--accent-soft);color:var(--accent);border-radius:12px;font-size:12px;font-weight:650}
+
+.screens-section+.outcomes{padding:12px 0 70px}@media(max-width:540px){.screens-section+.outcomes{padding-bottom:45px}}
