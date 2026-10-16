@@ -1,0 +1,66 @@
+name: Publish verified desktop binaries
+on:
+  pull_request:
+    paths: ['release-tools/**', '.github/workflows/publish-release.yml']
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        type: string
+      artifact_url:
+        required: true
+        type: string
+      artifact_sha256:
+        required: true
+        type: string
+      source_sha:
+        required: true
+        type: string
+      source_run:
+        required: true
+        type: string
+      mode:
+        type: choice
+        default: candidate
+        options: [candidate, formal]
+      windows_acceptance:
+        description: Clean Windows public-installer login and workspace acceptance record (required for formal)
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: publish-desktop-release
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s release-tools -p 'test_*.py'
+  publish:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact cloud artifacts and publish binary-only release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+          ARTIFACT_URL: ${{ inputs.artifact_url }}
+          ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          SOURCE_RUN: ${{ inputs.source_run }}
+          MODE: ${{ inputs.mode }}
+          WINDOWS_ACCEPTANCE: ${{ inputs.windows_acceptance }}
+        run: |
+          echo "::add-mask::$ARTIFACT_URL"
+          python release-tools/publish.py
