@@ -46,7 +46,7 @@ def main():
     except subprocess.CalledProcessError:release=None
     if release is None:
         if mode!="candidate":raise ValueError("Publish and verify the same candidate before promotion")
-        notes="Windows 10/11 x64 installer included. Windows installer is unsigned: Unknown publisher / SmartScreen prompts may appear. macOS installer is Developer ID signed and notarized. Windows clean-machine login acceptance is pending."
+        notes="Windows 10/11 x64 安装包未做代码签名，安装时可能显示“未知发布者”或 SmartScreen 提示。Windows installer is unsigned: Unknown publisher / SmartScreen prompts may appear. macOS 已通过 Developer ID 签名与 Apple 公证。 Windows 真机登录、首次工作区与重启恢复尚未验收。Windows clean-machine acceptance is pending."
         gh("release","create",tag,"--repo",repo,"--target","main","--title","求职匠 "+version,"--notes",notes,"--prerelease","--latest=false",*[str(p) for p in root.iterdir()])
     elif mode=="candidate":
         if not release["isPrerelease"]:raise ValueError("Existing stable versions are immutable")
@@ -57,7 +57,8 @@ def main():
         if sha("public-readback.bin")!=evidence["files"][p.name]["sha256"]:raise ValueError("Public download hash mismatch")
         print(p.name,p.stat().st_size,sha(p))
     if mode=="formal":
-        notes="Windows 10/11 x64 installer included. Windows installer is unsigned: Unknown publisher / SmartScreen prompts may appear. macOS installer is Developer ID signed and notarized."
+        notes="Windows 10/11 x64 安装包未做代码签名，安装时可能显示“未知发布者”或 SmartScreen 提示。Windows installer is unsigned: Unknown publisher / SmartScreen prompts may appear. macOS 已通过 Developer ID 签名与 Apple 公证。"
+        notes += "\n\nWindows acceptance record: " + os.environ["WINDOWS_ACCEPTANCE"].strip()
         gh("release","edit",tag,"--repo",repo,"--prerelease=false","--latest","--notes",notes)
         latest=json.loads(gh("api","repos/"+repo+"/releases/latest"))
         if latest["tag_name"]!=tag or latest["prerelease"]:raise ValueError("Latest promotion not confirmed")
