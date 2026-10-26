@@ -19,12 +19,8 @@ on:
       source_run:
         required: true
         type: string
-      mode:
-        type: choice
-        default: candidate
-        options: [candidate, formal]
       windows_acceptance:
-        description: Clean Windows public-installer login and workspace acceptance record (required for formal)
+        description: Optional Windows acceptance record appended to the release notes (every publication is a formal Latest release)
         type: string
 permissions:
   contents: read
@@ -59,7 +55,6 @@ jobs:
           ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
           SOURCE_SHA: ${{ inputs.source_sha }}
           SOURCE_RUN: ${{ inputs.source_run }}
-          MODE: ${{ inputs.mode }}
           WINDOWS_ACCEPTANCE: ${{ inputs.windows_acceptance }}
         run: |
           echo "::add-mask::$ARTIFACT_URL"

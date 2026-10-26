@@ -14,6 +14,11 @@ def sha(path):
     with open(path,"rb") as f:
         for chunk in iter(lambda:f.read(1048576),b""):h.update(chunk)
     return h.hexdigest()
+NOTES="Windows 10/11 x64 安装包未做代码签名，安装时可能显示“未知发布者”或 SmartScreen 提示。Windows installer is unsigned: Unknown publisher / SmartScreen prompts may appear. macOS 已通过 Developer ID 签名与 Apple 公证。"
+def plan(release):
+    """A new version is created as Latest; an old prerelease of it is promoted; a stable one is never changed."""
+    if release is None:return "create"
+    return "promote" if release["isPrerelease"] else "verify"
 def gh(*args):return subprocess.check_output(["gh",*args],text=True)
 def main():
     version=os.environ["VERSION"];names=expected(version);url=os.environ["ARTIFACT_URL"];validate_url(url)
@@ -40,27 +45,24 @@ def main():
     tree=json.loads(gh("api","repos/"+repo+"/git/trees/main?recursive=1"))
     for entry in tree["tree"]:
         if re.search(r"(^|/)(src|src-tauri|skills|templates)(/|$)|(^|/)(Cargo\.(toml|lock)|package(-lock)?\.json|\.env.*)$",entry["path"],re.I):raise ValueError("App source in public tag tree")
-    mode=os.environ["MODE"]
-    if mode=="formal" and not os.environ.get("WINDOWS_ACCEPTANCE","").strip():raise ValueError("Clean Windows install/login acceptance record required before Latest")
+    # Owner 2026-10-26: every publication is a formal Latest release; there is no candidate/prerelease step.
+    notes=NOTES+("\n\nWindows acceptance record: "+os.environ["WINDOWS_ACCEPTANCE"].strip() if os.environ.get("WINDOWS_ACCEPTANCE","").strip() else "")
     try:release=json.loads(gh("release","view",tag,"--repo",repo,"--json","isPrerelease,assets"))
     except subprocess.CalledProcessError:release=None
-    if release is None:
-        if mode!="candidate":raise ValueError("Publish and verify the same candidate before promotion")
-        notes="Windows 10/11 x64 安装包未做代码签名，安装时可能显示“未知发布者”或 SmartScreen 提示。Windows installer is unsigned: Unknown publisher / SmartScreen prompts may appear. macOS 已通过 Developer ID 签名与 Apple 公证。 Windows 真机登录、首次工作区与重启恢复尚未验收。Windows clean-machine acceptance is pending."
-        gh("release","create",tag,"--repo",repo,"--target","main","--title","求职匠 "+version,"--notes",notes,"--prerelease","--latest=false",*[str(p) for p in root.iterdir()])
-    elif mode=="candidate":
-        if not release["isPrerelease"]:raise ValueError("Existing stable versions are immutable")
+    action=plan(release)
+    if action=="create":
+        gh("release","create",tag,"--repo",repo,"--target","main","--title","求职匠 "+version,"--notes",notes,"--latest=false",*[str(p) for p in root.iterdir()])
+    else:
         validate_names([a["name"] for a in release["assets"]],version)
     for p in root.iterdir():
         public="https://github.com/"+repo+"/releases/download/"+tag+"/"+p.name
         urllib.request.urlretrieve(public,"public-readback.bin")
         if sha("public-readback.bin")!=evidence["files"][p.name]["sha256"]:raise ValueError("Public download hash mismatch")
         print(p.name,p.stat().st_size,sha(p))
-    if mode=="formal":
-        notes="Windows 10/11 x64 安装包未做代码签名，安装时可能显示“未知发布者”或 SmartScreen 提示。Windows installer is unsigned: Unknown publisher / SmartScreen prompts may appear. macOS 已通过 Developer ID 签名与 Apple 公证。"
-        notes += "\n\nWindows acceptance record: " + os.environ["WINDOWS_ACCEPTANCE"].strip()
+    # Only after every public download matches the cloud artifact does the updater endpoint move to it.
+    if action!="verify":
         gh("release","edit",tag,"--repo",repo,"--prerelease=false","--latest","--notes",notes)
-        latest=json.loads(gh("api","repos/"+repo+"/releases/latest"))
-        if latest["tag_name"]!=tag or latest["prerelease"]:raise ValueError("Latest promotion not confirmed")
+    latest=json.loads(gh("api","repos/"+repo+"/releases/latest"))
+    if latest["tag_name"]!=tag or latest["prerelease"]:raise ValueError("Latest release not confirmed")
     print("https://github.com/"+repo+"/releases/tag/"+tag)
 if __name__=="__main__":main()
