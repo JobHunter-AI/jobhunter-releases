@@ -3,9 +3,9 @@ from pathlib import Path
 
 def expected(version):
     if not re.fullmatch(r"0\.\d+\.\d+",version):raise ValueError("Invalid stable version")
-    return {"JobHunter-"+version+"-macos-universal.dmg","jobhunter-"+version+"-darwin-universal.app.tar.gz","jobhunter-"+version+"-windows-x86_64-setup.exe","latest.json"}
+    return {"JobHunter-"+version+"-macos-universal.dmg","jobhunter-"+version+"-darwin-universal.app.tar.gz","jobhunter-"+version+"-windows-x86_64-setup.exe","jobhunter-"+version+"-windows-aarch64-setup.exe","latest.json"}
 def validate_names(names,version):
-    if set(names)!=expected(version):raise ValueError("Release requires exactly both installers, macOS updater and latest.json")
+    if set(names)!=expected(version):raise ValueError("Release requires exactly the macOS and Windows x64/ARM64 installers, macOS updater and latest.json")
 def validate_url(url):
     p=urllib.parse.urlparse(url)
     if p.scheme!="https" or not p.hostname or not p.hostname.endswith(".blob.core.windows.net"):raise ValueError("Expected GitHub Actions artifact storage URL")
@@ -14,7 +14,9 @@ def sha(path):
     with open(path,"rb") as f:
         for chunk in iter(lambda:f.read(1048576),b""):h.update(chunk)
     return h.hexdigest()
-NOTES="Windows 10/11 x64 安装包未做代码签名，安装时可能显示“未知发布者”或 SmartScreen 提示。Windows installer is unsigned: Unknown publisher / SmartScreen prompts may appear. macOS 已通过 Developer ID 签名与 Apple 公证。"
+NOTES="Windows 10/11 x64 与 ARM64 安装包未做代码签名，安装时可能显示“未知发布者”或 SmartScreen 提示。Windows installers (x64, ARM64) are unsigned: Unknown publisher / SmartScreen prompts may appear. macOS 已通过 Developer ID 签名与 Apple 公证。"
+UPDATER_ASSET={"darwin-aarch64":"-darwin-universal.app.tar.gz","darwin-x86_64":"-darwin-universal.app.tar.gz","windows-x86_64":"-windows-x86_64-setup.exe","windows-aarch64":"-windows-aarch64-setup.exe"}
+def updater_asset(platform,version):return "jobhunter-"+version+UPDATER_ASSET[platform]
 def plan(release):
     """A new version is created as Latest; an old prerelease of it is promoted; a stable one is never changed."""
     if release is None:return "create"
@@ -36,9 +38,9 @@ def main():
     for p in root.iterdir():
         if sha(p)!=evidence["files"][p.name]["sha256"] or p.stat().st_size!=evidence["files"][p.name]["bytes"]:raise ValueError("File hash or length mismatch")
     manifest=json.loads((root/"latest.json").read_text())
-    if manifest["version"]!=version or set(manifest["platforms"])!={"darwin-aarch64","darwin-x86_64","windows-x86_64"}:raise ValueError("Incomplete updater manifest")
+    if manifest["version"]!=version or set(manifest["platforms"])!=set(UPDATER_ASSET):raise ValueError("Incomplete updater manifest")
     for platform,entry in manifest["platforms"].items():
-        name="jobhunter-"+version+("-windows-x86_64-setup.exe" if platform.startswith("windows") else "-darwin-universal.app.tar.gz")
+        name=updater_asset(platform,version)
         if entry["url"]!="https://github.com/JobHunter-AI/jobhunter-releases/releases/download/v"+version+"/"+name or not entry["signature"].strip():raise ValueError("Wrong updater URL or missing signature")
     repo=os.environ["GITHUB_REPOSITORY"];tag="v"+version
     if repo!="JobHunter-AI/jobhunter-releases" or json.loads(gh("api","repos/"+repo))["private"]:raise ValueError("Wrong publication repository")
