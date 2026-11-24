@@ -53,7 +53,7 @@ def main():
     except subprocess.CalledProcessError:release=None
     action=plan(release)
     if action=="create":
-        gh("release","create",tag,"--repo",repo,"--target","main","--title","求职匠 "+version,"--notes",notes,"--latest=false",*[str(p) for p in root.iterdir()])
+        gh("release","create",tag,"--repo",repo,"--target","main","--title","职聘 "+version,"--notes",notes,"--latest=false",*[str(p) for p in root.iterdir()])
     else:
         validate_names([a["name"] for a in release["assets"]],version)
     for p in root.iterdir():
