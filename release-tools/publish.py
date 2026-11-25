@@ -3,7 +3,7 @@ from pathlib import Path
 
 def expected(version):
     if not re.fullmatch(r"0\.\d+\.\d+",version):raise ValueError("Invalid stable version")
-    return {"JobHunter-"+version+"-macos-universal.dmg","jobhunter-"+version+"-darwin-universal.app.tar.gz","jobhunter-"+version+"-windows-x86_64-setup.exe","jobhunter-"+version+"-windows-aarch64-setup.exe","latest.json"}
+    return {"Jobpin-"+version+"-macos-universal.dmg","jobhunter-"+version+"-darwin-universal.app.tar.gz","jobhunter-"+version+"-windows-x86_64-setup.exe","jobhunter-"+version+"-windows-aarch64-setup.exe","latest.json"}
 def validate_names(names,version):
     if set(names)!=expected(version):raise ValueError("Release requires exactly the macOS and Windows x64/ARM64 installers, macOS updater and latest.json")
 def validate_url(url):
